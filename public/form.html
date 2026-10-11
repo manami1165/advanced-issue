@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>打刻・休暇申請 | 勤怠記録アプリ</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/form.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">勤怠記録アプリ</h1>
+    <nav class="site-nav" aria-label="メインメニュー">
+      <a href="/index.html">社員一覧</a>
+      <a href="/form.html" aria-current="page">打刻・休暇申請</a>
+      <a href="/leaves.html">休暇一覧</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>社員を選ぶ</h2>
+      <div class="form-row">
+        <label for="employee-select">社員</label>
+        <select id="employee-select"></select>
+      </div>
+      <p id="employee-message" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2>打刻</h2>
+      <p class="today-status">本日の打刻: <span id="today-status">社員を選んでください</span></p>
+      <div class="button-row">
+        <button type="button" id="clock-in-button" class="btn btn-primary" disabled>出勤</button>
+        <button type="button" id="clock-out-button" class="btn btn-secondary" disabled>退勤</button>
+      </div>
+      <p id="clock-message" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2>休暇申請</h2>
+      <form id="leave-form" class="form" novalidate>
+        <div class="form-row">
+          <label for="leave-date">日付（平日のみ）</label>
+          <input type="date" id="leave-date" name="leave_date" required>
+        </div>
+        <div class="form-row">
+          <label for="leave-reason">理由（任意・500文字まで）</label>
+          <textarea id="leave-reason" name="reason" rows="4" maxlength="500"></textarea>
+          <span class="char-count"><span id="reason-count">0</span> / 500</span>
+        </div>
+        <p id="leave-applied-note" class="note note-warning" hidden>この日はすでに休暇申請済みです</p>
+        <button type="submit" id="leave-submit" class="btn btn-primary" disabled>休暇を申請する</button>
+      </form>
+      <p id="leave-message" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+  </main>
+</body>
+</html>

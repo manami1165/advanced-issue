@@ -1,0 +1,11 @@
+# 環境変数（DB のパスワードなど）はコミットしない
+.env
+.env.*
+!.env.example
+
+# 依存パッケージ
+node_modules/
+
+# ログ・カバレッジ
+npm-debug.log*
+coverage/

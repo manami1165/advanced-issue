@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>社員一覧 | 勤怠記録アプリ</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/index.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">勤怠記録アプリ</h1>
+    <nav class="site-nav" aria-label="メインメニュー">
+      <a href="/index.html" aria-current="page">社員一覧</a>
+      <a href="/form.html">打刻・休暇申請</a>
+      <a href="/leaves.html">休暇一覧</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>社員の登録</h2>
+      <form id="employee-form" class="form" novalidate>
+        <div class="form-row">
+          <label for="employee-name">社員名（必須・100文字まで）</label>
+          <input type="text" id="employee-name" name="name" maxlength="100" required autocomplete="off">
+        </div>
+        <button type="submit" id="employee-submit" class="btn btn-primary">登録する</button>
+      </form>
+      <p id="form-message" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2>社員一覧（<span id="summary-month">当月</span>の集計）</h2>
+        <button type="button" id="reload-button" class="btn btn-secondary">再読み込み</button>
+      </div>
+      <p class="note">欠勤・休暇は前日まで、出勤・勤務時間は今日の分まで集計します。休暇は承認済みのものだけ数えます。</p>
+      <p id="list-message" class="message" role="status" aria-live="polite" hidden></p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col" class="num">ID</th>
+              <th scope="col">社員名</th>
+              <th scope="col" class="num">勤務時間</th>
+              <th scope="col" class="num">出勤</th>
+              <th scope="col" class="num">欠勤</th>
+              <th scope="col" class="num">休暇</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="employee-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

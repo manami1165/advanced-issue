@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>休暇一覧 | 勤怠記録アプリ</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/leaves.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">勤怠記録アプリ</h1>
+    <nav class="site-nav" aria-label="メインメニュー">
+      <a href="/index.html">社員一覧</a>
+      <a href="/form.html">打刻・休暇申請</a>
+      <a href="/leaves.html" aria-current="page">休暇一覧</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="section-header">
+        <h2>休暇申請の一覧</h2>
+        <button type="button" id="reload-button" class="btn btn-secondary">再読み込み</button>
+      </div>
+      <div class="form-row form-row-inline">
+        <label for="filter-employee">社員で絞り込み</label>
+        <select id="filter-employee"></select>
+      </div>
+      <p id="list-message" class="message" role="status" aria-live="polite" hidden></p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">日付</th>
+              <th scope="col">社員名</th>
+              <th scope="col">理由</th>
+              <th scope="col">ステータス</th>
+              <th scope="col">ステータスの変更</th>
+            </tr>
+          </thead>
+          <tbody id="leave-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
