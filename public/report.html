@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>月次レポート | 勤怠記録アプリ</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/js/common.js" defer></script>
+  <script src="/js/report.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">勤怠記録アプリ</h1>
+    <nav class="site-nav" aria-label="メインメニュー">
+      <a href="/index.html">社員一覧</a>
+      <a href="/form.html">打刻・休暇申請</a>
+      <a href="/leaves.html">休暇一覧</a>
+      <a href="/report.html" aria-current="page">月次レポート</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>社員と年月を選ぶ</h2>
+      <form id="report-form" class="form" novalidate>
+        <div class="form-row">
+          <label for="report-employee">社員</label>
+          <select id="report-employee" name="employee_id"></select>
+        </div>
+        <div class="form-row">
+          <label for="report-month">年月</label>
+          <input type="month" id="report-month" name="month" required>
+        </div>
+        <button type="submit" id="report-submit" class="btn btn-primary">表示</button>
+      </form>
+      <p id="report-message" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="card" id="report-result" hidden>
+      <h2>月次レポート</h2>
+      <dl class="report-list">
+        <div class="report-item">
+          <dt>社員名</dt>
+          <dd id="report-name"></dd>
+        </div>
+        <div class="report-item">
+          <dt>対象年月</dt>
+          <dd id="report-period"></dd>
+        </div>
+        <div class="report-item">
+          <dt>勤務時間</dt>
+          <dd id="report-work-time"></dd>
+        </div>
+        <div class="report-item">
+          <dt>出勤日数</dt>
+          <dd id="report-attendance-days"></dd>
+        </div>
+        <div class="report-item">
+          <dt>遅刻回数</dt>
+          <dd id="report-late-count"></dd>
+        </div>
+      </dl>
+    </section>
+  </main>
+</body>
+</html>

@@ -28,28 +28,31 @@ describe('静的ファイル配信', () => {
     ['/index.html', /^text\/html/],
     ['/form.html', /^text\/html/],
     ['/leaves.html', /^text\/html/],
+    ['/report.html', /^text\/html/],
     ['/style.css', /^text\/css/],
     ['/js/common.js', /javascript/],
     ['/js/index.js', /javascript/],
     ['/js/form.js', /javascript/],
     ['/js/leaves.js', /javascript/],
+    ['/js/report.js', /javascript/],
   ])('GET %s は 200 で返る', async (path, contentType) => {
     const res = await request(app).get(path);
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(contentType);
   });
 
-  test('3画面すべてに共通ナビゲーションがある', async () => {
-    for (const path of ['/index.html', '/form.html', '/leaves.html']) {
+  test('4画面すべてに共通ナビゲーションがある', async () => {
+    for (const path of ['/index.html', '/form.html', '/leaves.html', '/report.html']) {
       const res = await request(app).get(path);
       expect(res.text).toContain('href="/index.html"');
       expect(res.text).toContain('href="/form.html"');
       expect(res.text).toContain('href="/leaves.html"');
+      expect(res.text).toContain('href="/report.html"');
     }
   });
 
   test('HTML にインラインの script・イベント属性・style 属性がない（CSP で動かなくなるため）', async () => {
-    for (const path of ['/index.html', '/form.html', '/leaves.html']) {
+    for (const path of ['/index.html', '/form.html', '/leaves.html', '/report.html']) {
       const res = await request(app).get(path);
       // <script> は src 付きの外部ファイルだけ
       const scriptTags = res.text.match(/<script\b[^>]*>/gi) || [];

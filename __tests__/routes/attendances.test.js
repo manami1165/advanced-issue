@@ -293,6 +293,61 @@ describe('POST /api/attendances/clock-out', () => {
     const res = await request(app).post('/api/attendances/clock-out').send({ employee_id: 1 });
     expectInternalError(res);
   });
+
+  // 退勤時刻 > 出勤時刻 の CHECK 制約違反（23514）
+  // 例: サーバーの時計が戻った・同じ瞬間に打刻した など
+  const clockOutCheckError = () =>
+    pgError(
+      '23514',
+      'attendances_clock_out_after_clock_in_check',
+      'new row for relation "attendances" violates check constraint "attendances_clock_out_after_clock_in_check"'
+    );
+
+  test('400: 今日の打刻の UPDATE が CHECK 制約違反なら「退勤時刻が出勤時刻より前です」', async () => {
+    pool.query
+      .mockResolvedValueOnce(found()) // 社員の存在確認
+      .mockRejectedValueOnce(clockOutCheckError()); // 今日の打刻を UPDATE
+
+    const res = await request(app).post('/api/attendances/clock-out').send({ employee_id: 1 });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: '退勤時刻が出勤時刻より前です' });
+    expect(res.text).not.toMatch(/check constraint|attendances|23514/);
+    expect(pool.query).toHaveBeenCalledTimes(2);
+  });
+
+  test('400: 前日分の UPDATE が CHECK 制約違反でも「退勤時刻が出勤時刻より前です」', async () => {
+    pool.query
+      .mockResolvedValueOnce(found()) // 社員の存在確認
+      .mockResolvedValueOnce(none()) // 今日の未退勤なし
+      .mockResolvedValueOnce(none()) // 今日の打刻なし
+      .mockRejectedValueOnce(clockOutCheckError()); // 前日の未退勤を UPDATE
+
+    const res = await request(app).post('/api/attendances/clock-out').send({ employee_id: 1 });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: '退勤時刻が出勤時刻より前です' });
+    expect(res.text).not.toMatch(/check constraint|attendances|23514/);
+    expect(pool.query).toHaveBeenCalledTimes(4);
+  });
+
+  test('500: 別の制約名の CHECK 違反（23514）は内部エラーにする', async () => {
+    pool.query
+      .mockResolvedValueOnce(found())
+      .mockRejectedValueOnce(
+        pgError(
+          '23514',
+          'attendances_other_check',
+          'new row for relation "attendances" violates check constraint "attendances_other_check"'
+        )
+      );
+
+    const res = await request(app).post('/api/attendances/clock-out').send({ employee_id: 1 });
+
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual(INTERNAL_ERROR);
+    expect(res.text).not.toMatch(/check constraint|attendances_other_check|23514/);
+  });
 });
 
 describe('GET /api/attendances', () => {

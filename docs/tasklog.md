@@ -47,3 +47,26 @@
   - パスワードを .env.exampleに書いてしまった
     - 対処: コミット前に気づいて .env に移した（失敗予測「パスワードをGitにあげてしまう」の手前で止められた）
 
+### 課題C-後半: 追加機能実装
+- Agent Teamsへの依頼内容:
+Agent Teamを作成して、docs/agent-teams.md の設計書どおりに追加機能を実装してください。
+役割は CLAUDE.md の「Agent Team の役割定義」に従ってください。
+
+【先に決めておくAPIの形】
+GET /api/employees/:id/monthly-report?year=2026&month=10
+→ 200 { "employee_id", "employee_name", "year", "month", "work_minutes", "work_hours", "attendance_days", "late_count" }
+- 遅刻: 日本時間で9:00を過ぎて出勤した平日を数える（9:00ちょうどは遅刻ではない。土日は数えない）
+- 勤務時間・出勤日数の数え方は既存の月次集計（src/utils/summary.js）と同じ
+- year / month が不正なら 400、社員がいなければ 404
+
+【エラーチェック】
+- 退勤打刻で、退勤時刻が出勤時刻以前なら 400「退勤時刻が出勤時刻より前です」
+
+【Agent構成】
+- Backend Agent: 上のAPIとエラーチェックを src/routes に追加
+- Frontend Agent: public/report.html（社員と年月を選んでレポート表示）を作り、全画面のナビにリンクを追加。打刻画面でエラーメッセージを表示
+- Test Agent: 追加したAPIとエラーチェックのテスト（遅刻の境目 9:00:00 / 9:00:01、土日を含む）
+- Review Agent: セキュリティとコード品質のレビュー
+
+APIの形を先に決めているので、Backend・Frontend・Test は並列で進めてください。
+最後に統合して、npm run test:coverage が全件グリーン・70%以上であることを確認してください。

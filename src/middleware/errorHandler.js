@@ -9,6 +9,12 @@ const UNIQUE_MESSAGES = {
   leave_requests_employee_id_leave_date_key: 'すでに休暇申請済みです',
 };
 
+// CHECK 制約名 → 400 のメッセージ
+// ここにない CHECK 違反は想定外として 500 のままにする
+const CHECK_MESSAGES = {
+  attendances_clock_out_after_clock_in_check: '退勤時刻が出勤時刻より前です',
+};
+
 // 404: 存在しないルート
 function notFoundHandler(req, res) {
   res.status(404).json({ error: '指定されたURLは存在しません' });
@@ -46,6 +52,14 @@ function errorHandler(err, req, res, next) {
     // UNIQUE 違反: 同時押しなどで事前チェックをすり抜けた場合もここで 409 にする
     const message = UNIQUE_MESSAGES[err.constraint] || 'すでに登録されています';
     return res.status(409).json({ error: message });
+  }
+  if (
+    err &&
+    err.code === '23514' &&
+    Object.prototype.hasOwnProperty.call(CHECK_MESSAGES, err.constraint)
+  ) {
+    // CHECK 違反: 退勤時刻が出勤時刻以前（時計のずれなど）の場合は 400 にする
+    return res.status(400).json({ error: CHECK_MESSAGES[err.constraint] });
   }
   if (err && err.code === '23503') {
     // 外部キー違反: 参照先の社員が存在しない（削除された直後など）

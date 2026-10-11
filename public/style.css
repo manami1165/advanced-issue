@@ -128,6 +128,7 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="month"],
 select,
 textarea {
   font: inherit;
@@ -335,4 +336,32 @@ textarea {
   .button-row .btn {
     flex: 1 1 0;
   }
+}
+
+/* ---------- 月次レポート ---------- */
+.report-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.report-item {
+  border: 1px solid #d9e2ec;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background: #f8fafc;
+}
+
+.report-item dt {
+  font-size: 0.85rem;
+  color: #52606d;
+}
+
+/* 社員名が長くても枠からはみ出さないように折り返す */
+.report-item dd {
+  margin: 4px 0 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  overflow-wrap: anywhere;
 }
