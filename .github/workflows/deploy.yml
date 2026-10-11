@@ -1,0 +1,47 @@
+# CD: main に push されたら、テストが通った後で EC2 にデプロイする
+# EC2 の ~/app/.env（DB の接続情報）は EC2 上で手動で作成済みのものを使い、ここでは書き換えない
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: EC2 に SSH してデプロイ
+        env:
+          EC2_KEY: ${{ secrets.EC2_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          if [ -z "$EC2_HOST" ] || [ -z "$EC2_KEY" ] || [ -z "$EC2_USER" ]; then
+            echo "EC2 のシークレットが未設定のため、デプロイをスキップします"
+            exit 0
+          fi
+
+          # 秘密鍵はファイルに書き出して使い、最後に必ず消す
+          echo "$EC2_KEY" > deploy.pem
+          chmod 600 deploy.pem
+          trap 'rm -f deploy.pem' EXIT
+
+          ssh -o StrictHostKeyChecking=accept-new -i deploy.pem "${EC2_USER}@${EC2_HOST}" bash -s << 'ENDSSH'
+          set -e
+          # nvm で入れた node / npm / pm2 を使えるようにする
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+          cd ~/app
+          git pull origin main
+          npm ci
+          # テーブルの作成（CREATE TABLE IF NOT EXISTS なので何度実行しても安全）
+          bash db/migrate.sh
+          pm2 restart app --update-env || pm2 start src/index.js --name app
+          pm2 save
+          echo "デプロイ完了: $(date)"
+          ENDSSH
