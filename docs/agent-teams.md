@@ -34,3 +34,26 @@
 - 修正が競合していないか
 - APIが返す項目と画面の項目が一致しているか
 - 実装済みの処理が壊れていないか
+
+## 実際に使った構成
+
+| Agent | 使ったエージェント定義 | 実際にやったこと | 触ったファイル |
+|-------|----------------------|----------------|---------------|
+| Backend Agent | backend-architect | 月次レポートAPI、遅刻判定（`src/utils/report.js`）、退勤時刻エラー（CHECK 制約違反 → 400） | `src/routes/employees.js`、`src/utils/report.js`、`src/middleware/errorHandler.js`、`docs/requirements.md` |
+| Frontend Agent | frontend-developer | 月次レポート画面、全画面のナビにリンク追加 | `public/report.html`、`public/js/report.js`、`public/*.html`、`public/style.css` |
+| Test Agent | general-purpose | レポートAPI・遅刻の境目（9:00:00 / 9:00:01）・土日・退勤エラー・画面配信のテスト | `__tests__/` |
+| Review Agent | security-auditor | セキュリティ（SQLインジェクション・XSS・機密情報）とコード品質のレビュー（読むだけ） | なし |
+
+### 進め方
+- APIの形（パス・レスポンスの項目・エラー文言・DB への問い合わせの順番）を先に決めて、全員に同じ内容を渡した
+- Backend・Frontend・Test は並列で実行した。担当ディレクトリを分けたので、ファイルの競合は起きなかった
+- Frontend Agent からの申し送り（画面配信のテストに report.html を足す）を Test Agent に転送した
+- 3つが終わったあと、統合して `npm run test:coverage` を実行（427件グリーン・カバレッジ 100%）し、最後に Review Agent でレビューした
+- レビューの指摘は重大度「低」の2件だけ（画面一覧への追記漏れ、フロントの jsdom テストがない）
+
+## 気づき
+
+- 先にAPIの形（項目・エラー文言・DBへの問い合わせ順）を決めておいたので、3つのエージェントを並列で動かしてもズレなかった
+- 担当フォルダを分けたので、ファイルの取り合いが起きなかった
+- エージェントはテストとレビューまではしてくれるが、ブラウザで実際に動かす確認は人がやる必要があった。古いサーバーが動いたままで画面がエラーになったのは、自分で画面を見て気づいた
+- 休暇申請の直後に「申請済み」と出る使いにくさは、テストもレビューも通っていたが、実際に触って初めてわかった
