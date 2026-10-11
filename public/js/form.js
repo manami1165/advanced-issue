@@ -21,6 +21,8 @@ let appliedLeaveDates = new Set();
 let isLeaveDatesLoading = false;
 // 休暇申請を送信中かどうか（送信中は申請ボタンを有効に戻さない）
 let isLeaveSubmitting = false;
+// 直前に申請に成功した日付（成功メッセージと「申請済み」の注意書きが同時に出ないようにする）
+let justAppliedDate = null;
 // 打刻を送信中かどうか（送信中は出勤・退勤の両方を押せないようにする）
 let isClockSubmitting = false;
 // 社員切り替え時の読み込みが前後した場合に、古い結果で上書きしないための番号
@@ -42,7 +44,8 @@ function updateClockButtonsState() {
 function updateLeaveButtonState() {
   const date = leaveDateInput.value;
   const alreadyApplied = date !== '' && appliedLeaveDates.has(date);
-  leaveAppliedNote.hidden = !alreadyApplied;
+  // 申請した直後は成功メッセージだけを出す（日付や社員を選び直したら注意書きを出す）
+  leaveAppliedNote.hidden = !alreadyApplied || date === justAppliedDate;
   leaveSubmitButton.disabled =
     isLeaveSubmitting ||
     isLeaveDatesLoading ||
@@ -104,6 +107,7 @@ async function onEmployeeChange() {
   clearMessage(employeeMessage);
   clearMessage(clockMessage);
   clearMessage(leaveMessage);
+  justAppliedDate = null;
   loadSequence += 1;
   const sequence = loadSequence;
   const employeeId = getSelectedEmployeeId();
@@ -196,6 +200,7 @@ leaveForm.addEventListener('submit', async (e) => {
     leaveReasonInput.value = '';
     reasonCount.textContent = '0';
     appliedLeaveDates.add(leaveDate);
+    justAppliedDate = leaveDate;
   } catch (err) {
     showMessage(leaveMessage, err.message, 'error');
   } finally {
@@ -213,6 +218,7 @@ leaveForm.addEventListener('submit', async (e) => {
 
 employeeSelect.addEventListener('change', onEmployeeChange);
 leaveDateInput.addEventListener('input', () => {
+  justAppliedDate = null;
   clearMessage(leaveMessage);
   updateLeaveButtonState();
 });
